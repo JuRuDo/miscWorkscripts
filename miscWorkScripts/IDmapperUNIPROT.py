@@ -54,4 +54,6 @@ def main():
     query = read_query(args.input, args.column, args.ignore_lines)
     rest_api(query, args.id1, args.id2)
 
-main()
+
+if __name__ == '__main__':
+    main()
