@@ -15,7 +15,9 @@ setup(
     package_data={'': ['*']},
     install_requires=[],
     entry_points={
-        'console_scripts': ["IDmapper = miscWorkScripts.IDmapperUNIPROT:main"],
+        'console_scripts': ["IDmapper = miscWorkScripts.uniprot.IDmapperUNIPROT:main",
+                            "oma.getgroup = miscWorkScripts.oma.getGroup:main"
+],
     },
     license="GPL-3.0",
     classifiers=[
