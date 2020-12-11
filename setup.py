@@ -13,7 +13,10 @@ setup(
     url="https://github.com/JuRuDo/miscWorkscripts",
     packages=find_packages(),
     package_data={'': ['*']},
-    install_requires=[],
+    install_requires=[
+        'coreapi',
+        'urllib',
+    ],
     entry_points={
         'console_scripts': ["IDmapper = miscWorkScripts.uniprot.IDmapperUNIPROT:main",
                             "oma.getgroup = miscWorkScripts.oma.getGroup:main"
