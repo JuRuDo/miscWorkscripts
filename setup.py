@@ -2,7 +2,6 @@
 
 from setuptools import setup, find_packages
 
-
 setup(
     name="workScripts",
     version="0.1",
@@ -15,12 +14,14 @@ setup(
     package_data={'': ['*']},
     install_requires=[
         'coreapi',
-        'urllib',
+        'urllib3',
+        'lxml',
     ],
     entry_points={
-        'console_scripts': ["IDmapper = miscWorkScripts.uniprot.IDmapperUNIPROT:main",
-                            "oma.getgroup = miscWorkScripts.oma.getGroup:main"
-],
+        'console_scripts': ["uniprot.IDmapper = miscWorkScripts.uniprot.IDmapperUNIPROT:main",
+                            "oma.getgroup = miscWorkScripts.oma.getGroup:main",
+                            "kegg.getAAseq = miscWorkScripts.kegg.getAAseq:main"
+                            ],
     },
     license="GPL-3.0",
     classifiers=[

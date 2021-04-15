@@ -1,3 +1,4 @@
+#!/bin/env python
 import urllib.parse
 import urllib.request
 import argparse
