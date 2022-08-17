@@ -52,7 +52,7 @@ def get_aa_sequences(groups, outpath):
 def main():
     parser = argparse.ArgumentParser(description="get all AA sequences of a kegg pathway")
     parser.add_argument("-i", "--pathway_id", type=str, default=None, required=True,
-                        help="Id of the pathway, only gith the numerical part")
+                        help="Id of the pathway, only give the numerical part")
     parser.add_argument("-o", "--outpath", type=str, default='./kegg_out.fasta',
                         help="outputfile (fasta format)")
     args = parser.parse_args()
