@@ -19,8 +19,10 @@ setup(
     ],
     entry_points={
         'console_scripts': ["uniprot.IDmapper = miscWorkScripts.uniprot.IDmapperUNIPROT:main",
-                            "oma.getgroup = miscWorkScripts.oma.getGroup:main",
-                            "kegg.getAAseq = miscWorkScripts.kegg.getAAseq:main"
+                            "oma.getGroup = miscWorkScripts.oma.getGroup:main",
+                            "kegg.getAAseq = miscWorkScripts.kegg.getAAseq:main",
+                            "transcriptDEA.mergeResults = miscWorkScripts.transcriptDEA.mergeResults:main",
+                            "transcriptDEA.fixEnsIDs = miscWorkScripts.transcriptDEA.fixEnsIDs:main",
                             ],
     },
     license="GPL-3.0",

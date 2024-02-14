@@ -1,6 +1,5 @@
 #!/bin/env python
 
-
 from lxml import etree
 from io import StringIO
 import urllib3 as urllib

@@ -1,4 +1,5 @@
 #!/bin/env python
+
 import coreapi
 import argparse
 
