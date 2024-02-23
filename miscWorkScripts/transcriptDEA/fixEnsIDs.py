@@ -3,7 +3,7 @@
 import argparse
 
 def main():
-    parser = argparse.ArgumentParser(description="Combine individual expression tables of samples with output of DEA")
+    parser = argparse.ArgumentParser(description="Replace Stringtie Ids with Ensembl Ids")
     parser.add_argument("-i", "--input", type=str, default=None, required=True,
                           help="input csv table, first columns should be geneNames, geneIDs and transcriptIDs")
     parser.add_argument("-g", "--geneIDs", type=str, default='.',

@@ -2,10 +2,11 @@
 
 import argparse
 import plotly.graph_objects as go
+import plotly.express as px
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Combine individual expression tables of samples with output of DEA")
+    parser = argparse.ArgumentParser(description="plots Expression values")
     parser.add_argument("-e", "--EXP", type=str, default=None, required=True,
                           help="expression File")
     parser.add_argument("-s", "--samples", type=str, default=None, required=True,
@@ -21,13 +22,14 @@ def main():
 
 def readSamples(path):
     groups = {}
+    tmp = {2: 'Primary', 3: 'Organoide', 4: 'Xeno'}
     with open(path, 'r') as infile:
         for line in infile.readlines():
             if not line[0:5] == 'BB-ID':
                 cells = line.rstrip('\n').split('\t')
-                groups[cells[0]] = []
-                for i in range(2,len(cells)):
-                    groups[cells[0]].append(cells[i])
+                groups[cells[0]] = {}
+                for i in range(2, min(len(cells), 5)):
+                    groups[cells[0]][tmp[i]] = cells[i]
     infile.close()
     return groups
 
@@ -53,11 +55,11 @@ def readExp(path):
 def checkGroups(samples, groups):
     final_groups = {}
     for group in groups:
-        if groups[group][0] in samples:
-            final_groups[group] = [groups[group][0]]
-            for sample in groups[group][1:]:
-                if sample in samples:
-                    final_groups[group].append(sample)
+        if groups[group]['Primary'] in samples or groups[group]['Organoide'] in samples:
+            final_groups[group] = {}
+            for sample in groups[group]:
+                if groups[group][sample] in samples:
+                    final_groups[group][sample] = groups[group][sample]
     return final_groups
 
 
@@ -67,24 +69,41 @@ def prepareData(exp, final_groups):
     traces = {}
     for t in tlist:
         traces[t] = []
-    tmp = {0: 'Tumor', 1: 'Organoide', 2: 'Xeno'}
     for group in final_groups:
-        for i in range(len(final_groups[group])):
-            x[0].append(group)
-            x[1].append(tmp[i])
-            for t in tlist:
-                traces[t].append(exp[t][final_groups[group][i]])
+        for i in ['Primary', 'Organoide', 'Xeno']:
+            if i in final_groups[group]:
+                x[0].append(group)
+                x[1].append(i)
+                for t in tlist:
+                    traces[t].append(exp[t][final_groups[group][i]])
     return x, traces
 
 
 def plotExp(x, traces):
+    colors = [
+        '#636EFA',
+        '#EF553B',
+        '#00CC96',
+        '#AB63FA',
+        '#FFA15A',
+        '#19D3F3',
+        '#FF6692',
+        '#B6E880',
+        '#FF97FF',
+        '#FECB52',
+        '#B00068',
+        '#565656'
+    ]
+
     fig = go.Figure()
+    i = 0
     for trace in traces:
-        fig.add_bar(x=x, y=traces[trace], name=trace)
+        fig.add_bar(x=x, y=traces[trace], name=trace,  marker=dict(color=colors[i]))
         fig.update_layout(barmode='stack', yaxis_title='FPKM')
+        i += 1
     fig.show()
     fig.write_html('EXP.html')
-    fig.write_image('EXP.svg', width=1600, height=1000)
+    fig.write_image('EXP.svg', width=2000, height=1000)
 
 
 if __name__ == '__main__':

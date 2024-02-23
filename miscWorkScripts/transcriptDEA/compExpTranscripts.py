@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Combine individual expression tables of samples with output of DEA")
+    parser = argparse.ArgumentParser(description="Compare AS expression between conditions.")
     parser.add_argument("-i", "--input", type=str, default=None, required=True,
                           help="input csv table, first columns should be geneNames, geneIDs and transcriptIDs")
     parser.add_argument("-c", "--FPKMcutoff", type=float, default=1.0,

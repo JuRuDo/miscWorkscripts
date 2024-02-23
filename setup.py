@@ -26,6 +26,7 @@ setup(
                             "transcriptDEA.fixEnsIDsGeneExp = miscWorkScripts.transcriptDEA.fixEnsIDsGeneExp:main",
                             "transcriptDEA.getASevents = miscWorkScripts.transcriptDEA.compExpTranscripts:main",
                             "transcriptDEA.plotEXP = miscWorkScripts.transcriptDEA.plotExp:main",
+                            "transcriptDEA.getASgenes = miscWorkScripts.transcriptDEA.getASgenes:main",
                             ],
     },
     license="GPL-3.0",
