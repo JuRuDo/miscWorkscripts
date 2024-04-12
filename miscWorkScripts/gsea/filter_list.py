@@ -4,39 +4,37 @@ import argparse
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Add gene name to table")
+    parser = argparse.ArgumentParser(description="Reads in 2 table and outputs all values in column c1 that have a "
+                                                 "descriptor in column c2 that is in a given list")
     parser.add_argument("-i", "--infile", type=str, default=None, required=True,
                           help="input table in tsv format")
-    parser.add_argument("-m", "--map", type=str, default=None, required=True,
-                          help="ENS to gene name table. Tab seperated")
+    parser.add_argument("--c1", type=int, default=1,
+                          help="column containing ids")
+    parser.add_argument("--c2", type=int, default=2,
+                        help="column containing descriptions")
+    parser.add_argument("-x", "--description", type=str, default=None, required=True,
+                          help="input list of descriptions")
     parser.add_argument("-d", "--delimiter", type=str, default=',',
                           help="table delimiter")
     args = parser.parse_args()
 
-    mapping = read_mapping(args.map)
-    add_genename(args.infile, mapping, args.delimiter)
+    desc = read_descriptions(args.descriptions)
+    filter_table(args.infile, args.c1, args.c2, desc, args.delimiter)
 
 
-def read_mapping(path):
-    mapping = {}
-    print('NoNanme genes:')
+def read_descriptions(path):
+    descriptions = []
     with open(path, 'r') as infile:
         for line in infile.readlines():
-            cells = line.rstrip('\n').split('\t')
-            if cells[1] == '':
-                print(cells[0])
-            else:
-                mapping[cells[0]] = cells[1]
-    return mapping
+            descriptions.append(line.rstrip('\n'))
+    return descriptions
 
 
-def add_genename(path, mapping, delimiter):
-    out = open('.'.join(path.split('.')[0:-1]) + '_geneNames.gct', 'w')
-    out.write('#1.2\n')
+def filter_table(path, c1, c2, desc, delimiter):
     with open(path, 'r') as infile:
         for line in infile.readlines():
             cells = line.rstrip('\n').split(delimiter)
-            if cells[0] == 'NAME':
+            if cells[c2] == 'NAME':
                 out.write(str(len(mapping)) + '\t' + str(len(cells[1:])) + '\n')
                 tmp = 'NAME\tDESCRIPTION\t' + '\t'.join(cells[1:]) + '\n'
             elif cells[0] in mapping:

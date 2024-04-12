@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import argparse
+import math
 
 def main():
     parser = argparse.ArgumentParser(description="Replace Stringtie Ids with Ensembl Ids")
@@ -36,17 +37,19 @@ def fixIDs(path, gidTOens, lines, ensTOname):
             cells = line.rstrip('\n').split(',')
             for i in range(len(cells)):
                 cells[i] = cells[i].strip('"')
-            if cells[0] == 'geneNames':
-                out.write(','.join(cells[0:]) + '\n')
+            if cells[0] == 'id':
+                out.write(','.join(['geneNames', 'GeneIDs', 'Log2FoldChange', 'pValue', 'qValue'] + cells[4:]) + '\n')
             else:
-                if cells[1] in gidTOens:
-                    tmp = [ensTOname[gidTOens[cells[1]]], gidTOens[cells[1]]] + cells[3:]
+                if not cells[1] == 'NA':
+                    cells[1] = str(math.log2(float(cells[1])))
+                if cells[0] in gidTOens:
+                    tmp = [ensTOname[gidTOens[cells[0]]], gidTOens[cells[0]]] + cells[1:]
                 elif cells[0] in ensTOname:
-                    tmp = [cells[1], ensTOname[cells[1]]] + cells[3:]
+                    tmp = [ensTOname[cells[0]], cells[0]] + cells[1:]
                 else:
-                    tmp = cells
+                    tmp = [''] + cells
                 out.write(','.join(tmp) + '\n')
-    out.close
+    out.close()
 
 
 if __name__ == '__main__':
