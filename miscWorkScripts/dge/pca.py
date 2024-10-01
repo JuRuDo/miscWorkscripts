@@ -21,7 +21,7 @@
 #######################################################################
 
 
-import json
+
 import pandas as pd
 import argparse
 from sklearn.decomposition import PCA

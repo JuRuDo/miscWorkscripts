@@ -9,15 +9,33 @@ def main():
     parser = argparse.ArgumentParser(description="plots Expression values")
     parser.add_argument("-e", "--EXP", type=str, default=None, required=True,
                           help="expression File")
+    parser.add_argument("-g", "--genes", type=str, default=None, required=True,
+                          help="List of genes in a text file.")
     parser.add_argument("-s", "--samples", type=str, default=None, required=True,
                           help="Path to file with samples mapped.")
+    parser.add_argument("-o", "--out", type=str, default=None, required=True,
+                          help="Path to out directory.")
     args = parser.parse_args()
 
     groups = readSamples(args.samples)
-    exp, samples = readExp(args.EXP)
+    genes = readGeneList(args.genes)
+    exp, samples = readExp(args.EXP, genes)
     final_groups = checkGroups(samples, groups)
-    x, traces = prepareData(exp, final_groups)
-    plotExp(x, traces)
+    for i in exp:
+        x, traces = prepareData(exp[i], final_groups)
+        plotExp(x, traces, args.out, i)
+        genes.remove(i)
+    if genes:
+        print('Missing:')
+        for i in genes:
+            print(i)
+
+def readGeneList(path):
+    genes = []
+    with open(path, 'r') as infile:
+        for line in infile.readlines():
+            genes.append(line.rstrip('\n'))
+    return genes
 
 
 def readSamples(path):
@@ -34,21 +52,23 @@ def readSamples(path):
     return groups
 
 
-def readExp(path):
+def readExp(path, genes):
     exp = {}
     s = {}
     slist = []
     with open(path, 'r') as infile:
         for line in infile.readlines():
             cells = line.rstrip('\n').split(',')
-            if cells[0] == '':
-                for i in range(1, len(cells)):
+            if cells[0] == 'geneNames':
+                for i in range(3, len(cells)):
                     s[i] = cells[i]
                     slist.append(cells[i])
-            else:
-                exp[cells[0]] = {}
-                for i in range(1, len(cells)):
-                    exp[cells[0]][s[i]] = float(cells[i])
+            elif cells[0] in genes:
+                if not cells[0] in exp:
+                    exp[cells[0]] = {}
+                exp[cells[0]][cells[2]] = {}
+                for i in range(3, len(cells)):
+                    exp[cells[0]][cells[2]][s[i]] = float(cells[i])
     return exp, slist
 
 
@@ -79,22 +99,28 @@ def prepareData(exp, final_groups):
     return x, traces
 
 
-def plotExp(x, traces):
+def plotExp(x, traces, outpath, gene):
     fig = go.Figure()
     i = 0
-    for trace in traces:
-        fig.add_bar(x=x, y=traces[trace], name=trace,)
-        fig.update_layout(barmode='stack', yaxis_title='Normalized Counts')
-        i += 1
-#    i = 0
 #    for trace in traces:
-#        fig.add_bar(x=x, y=traces[trace], name=trace,  marker=dict(color=px.colors.qualitative.Light24[i]))
+#        fig.add_bar(x=x, y=traces[trace], name=trace,)
 #        fig.update_layout(barmode='stack', yaxis_title='Normalized Counts')
 #        i += 1
+    for trace in traces:
+        fig.add_bar(x=x, y=traces[trace], name=trace,  marker=dict(color=px.colors.qualitative.Light24[i]))
+        fig.update_layout(barmode='stack', yaxis_title='Normalized Counts')
+        i += 1
+        i = i%24
     fig.update_xaxes(tickangle=90)
-    fig.show()
-    fig.write_html('EXP_gene.html')
-    fig.write_image('EXP_gene.svg', width=2000, height=1000)
+    fig.update_layout(
+        showlegend=True,
+        title={
+            'text': gene,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'})
+    fig.write_html(outpath + '/' + gene + '.html')
+    fig.write_image(outpath + '/' + gene + '.svg', width=2000, height=1000)
 
 
 if __name__ == '__main__':

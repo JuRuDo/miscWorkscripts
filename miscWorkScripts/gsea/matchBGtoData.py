@@ -40,13 +40,13 @@ def match_bg(bg_in, bg_out, names):
         cells = line.rstrip('\n').split('\t')
         new_cells = [cells[0], cells[1]]
         for name in cells[2:]:
-            if name.lower() in names:
-                new_cells.append(names[name.lower()])
+            if name.lower().capitalize() in names:
+                new_cells.append(names[name.lower().capitalize()])
             else:
-                new_cells.append(name.lower())
+                new_cells.append(name.lower().capitalize())
                 if not cells[0] in missing:
                     missing[cells[0]] = []
-                missing[cells[0]].append(name)
+                missing[cells[0]].append(name.lower().capitalize())
         out.write('\t'.join(new_cells) + '\n')
     if missing:
         print('# The following genes could not be found in the dataset:')
