@@ -65,10 +65,24 @@ def plotTSNE(TSNEdata, c1, c2, outpath, method):
     if method == 'Batch':
         c = 'Batch'
     df = pd.DataFrame(TSNEdata)
-    fig1 = px.scatter(df, x=c1, y=c2, color=c, color_discrete_sequence=px.colors.qualitative.Light24)
-    fig1.update_layout(font=dict(size=14), legend={'itemsizing': 'constant'})
-    fig1.show()
-    fig1.write_html(outpath)
+    fig = px.scatter(df, x=c1, y=c2, color=c, color_discrete_sequence=px.colors.qualitative.Light24, )
+    fig.update_layout(font=dict(size=14), legend={'itemsizing': 'constant'})
+    fig.update_layout(
+        plot_bgcolor='white',
+    )
+    fig.update_xaxes(
+        mirror=True,
+        ticks='outside',
+        showline=True,
+        linecolor='black',
+    )
+    fig.update_yaxes(
+        mirror=True,
+        ticks='outside',
+        linecolor='black',
+    )
+    fig.write_html(outpath + '.html')
+    fig.write_image(outpath + '.svg', width=2000, height=1000)
 
 
 if __name__ == '__main__':

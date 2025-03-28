@@ -19,11 +19,11 @@ def main():
 
     groups = readSamples(args.samples)
     genes = readGeneList(args.genes)
-    exp, samples = readExp(args.EXP, genes)
+    exp, samples, names = readExp(args.EXP, genes)
     final_groups = checkGroups(samples, groups)
     for i in exp:
         x, traces = prepareData(exp[i], final_groups)
-        plotExp(x, traces, args.out, i)
+        plotExp(x, traces, args.out, i, names)
         genes.remove(i)
     if genes:
         print('Missing:')
@@ -56,6 +56,7 @@ def readExp(path, genes):
     exp = {}
     s = {}
     slist = []
+    names =  {}
     with open(path, 'r') as infile:
         for line in infile.readlines():
             cells = line.rstrip('\n').split(',')
@@ -63,13 +64,15 @@ def readExp(path, genes):
                 for i in range(3, len(cells)):
                     s[i] = cells[i]
                     slist.append(cells[i])
-            elif cells[0] in genes:
-                if not cells[0] in exp:
-                    exp[cells[0]] = {}
-                exp[cells[0]][cells[2]] = {}
+            elif cells[1] in genes:
+                if not cells[1] in exp:
+                    exp[cells[1]] = {}
+                    if cells[0]:
+                        names[cells[1]] = cells[0]
+                exp[cells[1]][cells[2]] = {}
                 for i in range(3, len(cells)):
-                    exp[cells[0]][cells[2]][s[i]] = float(cells[i])
-    return exp, slist
+                    exp[cells[1]][cells[2]][s[i]] = float(cells[i])
+    return exp, slist, names
 
 
 def checkGroups(samples, groups):
@@ -99,9 +102,13 @@ def prepareData(exp, final_groups):
     return x, traces
 
 
-def plotExp(x, traces, outpath, gene):
+def plotExp(x, traces, outpath, gene, names):
     fig = go.Figure()
     i = 0
+    if gene in names:
+        name = names[gene]
+    else:
+        name = gene
 #    for trace in traces:
 #        fig.add_bar(x=x, y=traces[trace], name=trace,)
 #        fig.update_layout(barmode='stack', yaxis_title='Normalized Counts')
@@ -115,12 +122,12 @@ def plotExp(x, traces, outpath, gene):
     fig.update_layout(
         showlegend=True,
         title={
-            'text': gene,
+            'text': name,
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top'})
-    fig.write_html(outpath + '/' + gene + '.html')
-    fig.write_image(outpath + '/' + gene + '.svg', width=2000, height=1000)
+    fig.write_html(outpath + '/' + name + '.html')
+    fig.write_image(outpath + '/' + name + '.svg', width=2000, height=1000)
 
 
 if __name__ == '__main__':

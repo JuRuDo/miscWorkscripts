@@ -14,7 +14,7 @@ def main():
     parser.add_argument("-o", "--outfile", type=str, default=None, required=True,
                           help="Path to output file.")
     parser.add_argument("-m", "--markersize", type=int, default=10, required=False,
-                          help="May bubble size")
+                          help="Marker bubble size")
     args = parser.parse_args()
 
     data = readInput(args.input)
