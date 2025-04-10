@@ -59,7 +59,7 @@ def readExp(path, genes):
 def readMap(path):
     mapping = {}
     with open(path, 'r') as infile:
-        line = infile.readline()
+        infile.readline()
         line = infile.readline()
         while line:
             cells = line.rstrip('\n').split('\t')

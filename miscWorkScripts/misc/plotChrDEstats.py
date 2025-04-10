@@ -62,7 +62,7 @@ def main():
     genes, first, last = readChr(args.genes)
     dge, down = readDGE(args.dge, mode)
     siggenes, numgenes, steps, numDgeGenes, down, numDgeDownGenes = calcPlotData(
-        genes, first, last, dge, down, args.windowsize, args.stepsize, args.allgenes, args.start, args.stop)
+        genes, first, last, dge, down, args.windowsize, args.stepsize, args.expressedGenes, args.start, args.stop)
     plotChrDE(siggenes, numgenes, numDgeGenes, down, numDgeDownGenes, steps, args.title, args.out)
 
 
@@ -94,14 +94,14 @@ def readDGE(path, mode):
                     down[cells[0].strip('"')] = False
                 else:
                     if mode == 1:
-                        dge[cells[0].strip('"')] = float(cells[3]) <= 0.05 and float(cells[2]) > 0.5
+                        dge[cells[0].strip('"')] = float(cells[4]) <= 0.05 and float(cells[2]) > 0.5
                         down[cells[0].strip('"')] = False
                     elif mode == 2:
-                        dge[cells[0].strip('"')] = float(cells[3]) <= 0.05 and float(cells[2]) < -0.5
+                        dge[cells[0].strip('"')] = float(cells[4]) <= 0.05 and float(cells[2]) < -0.5
                         down[cells[0].strip('"')] = False
                     else:
-                        dge[cells[0].strip('"')] = float(cells[3]) <= 0.05
-                        down[cells[0].strip('"')] = float(cells[3]) <= 0.05 and float(cells[2]) < -0.5
+                        dge[cells[0].strip('"')] = float(cells[4]) <= 0.05
+                        down[cells[0].strip('"')] = float(cells[4]) <= 0.05 and float(cells[2]) < -0.5
 
     infile.close()
     return dge, down
@@ -159,15 +159,15 @@ def plotChrDE(siggenes, numgenes, numDgeGenes, down, numDgeDownGenes, steps, tit
 
     # Add traces
     fig.add_trace(
-        go.Bar(x=steps, y=numgenes, marker=dict(color="Grey", opacity=0.25), name="Genes total"),
+        go.Bar(x=steps, y=numgenes, marker=dict(color="Grey", opacity=0.2), name="Genes total"),
         secondary_y=False,
     )
     fig.add_trace(
-        go.Bar(x=steps, y=numDgeGenes, marker=dict(color="Green", opacity=0.7), name="DGE genes"),
+        go.Bar(x=steps, y=numDgeGenes, marker=dict(color="Green", opacity=0.9), name="DGE genes"),
         secondary_y=False,
     )
     fig.add_trace(
-        go.Bar(x=steps, y=numDgeDownGenes, marker=dict(color="Orange", opacity=0.7), name="Downregulated genes"),
+        go.Bar(x=steps, y=numDgeDownGenes, marker=dict(color="Orange", opacity=0.9), name="Downregulated genes"),
         secondary_y=False,
     )
     fig.add_trace(
@@ -175,7 +175,7 @@ def plotChrDE(siggenes, numgenes, numDgeGenes, down, numDgeDownGenes, steps, tit
         secondary_y=True,
     )
     fig.add_trace(
-        go.Scatter(x=steps, y=down, name="Dowregulated [%]",line=dict(color="Orange")),
+        go.Scatter(x=steps, y=down, name="Downregulated [%]",line=dict(color="Orange")),
         secondary_y=True,
     )
 

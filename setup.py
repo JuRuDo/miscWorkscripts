@@ -72,6 +72,7 @@ setup(
                             "sce.plot_pca = miscWorkScripts.sce.plot_pca:main",
                             "sce.assignModules = miscWorkScripts.sce.assignModules:main",
                             "sce.processSCE = miscWorkScripts.sce.processSCE:main",
+                            "sce.correlationPlot = miscWorkScripts.sce.correlationPlot:main",
                             "dge.plotVolcano = miscWorkScripts.dge.plotVolcano:main"
                             ],
     },

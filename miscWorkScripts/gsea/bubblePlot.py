@@ -66,3 +66,7 @@ def plotBubble(df, outpath, m):
                       selector=dict(mode='markers'))
     fig.show()
     fig.write_image(outpath + '.svg', width=800, height=600)
+
+
+if __name__ == '__main__':
+    main()
