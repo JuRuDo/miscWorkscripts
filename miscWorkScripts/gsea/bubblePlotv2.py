@@ -1,8 +1,8 @@
 #!/bin/env python
 
 import argparse
-import pandas as pd
 import math
+import pandas as pd
 import plotly.express as px
 
 
@@ -18,12 +18,13 @@ def main():
                           help="Marker bubble size")
     args = parser.parse_args()
 
+
     data = readInput(args.input)
     plotBubble(data, args.outfile, args.markersize)
 
 
 def readInput(path):
-    data = {'Signature': [], 'Cluster': [], 'NES': [], 'padj': []}
+    data = {'Signature': [], 'NES': [], 'padj': [], 'Gene ratio': []}
     with open(path, 'r') as infile:
         lines = infile.readlines()
         tmp = []
@@ -31,21 +32,19 @@ def readInput(path):
             tmp.append(x.split('#'))
         for line in lines[1:]:
             cells = line.rstrip('\n').split('\t')
-            i = 1
-            while i < len(cells):
-                data['Signature'].append(cells[0])
-                data['Cluster'].append(tmp[i-1][1])
-                data['padj'].append(min(-math.log10(float(cells[i])), 3))
-                data['NES'].append(float(cells[i+1]))
-                i += 2
+            genes = float(len(cells[7].split(' ')))
+            data['Signature'].append(cells[0])
+            data['Gene ratio'].append((genes/float(cells[6])))
+            data['padj'].append(math.log10(float(cells[2])))
+            data['NES'].append(float(cells[5]))
     infile.close()
     return pd.DataFrame(data)
 
 
 
 def plotBubble(df, outpath, m):
-    fig = px.scatter(df, x="Cluster", y="Signature",
-                 size="padj", color="NES", size_max=m, color_continuous_scale='RdBu_r', range_color=(-2.2, 2.2))
+    fig = px.scatter(df, x="NES", y="Signature",
+                 size="Gene ratio", color="padj", size_max=m, color_continuous_scale='Bluered_r', range_color=(-3.0, 0.0))
     fig.update_layout(
         plot_bgcolor='white',
         font_color="black",

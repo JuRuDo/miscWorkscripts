@@ -21,7 +21,7 @@ def main():
 
     df = pd.read_csv(args.input)
     df = df[df['padj'].notna()]
-    df = df[df['gene_name'].notna()]
+    df = df[df['gene'].notna()]
 
     df['capLFC'] = df.apply(set_max_log, axis=1)
     df['capP'] = df.apply(set_min_p, args=[args.pvaluemin], axis=1)
@@ -60,7 +60,7 @@ def set_min_p(row, minpvalue):
 
 
 def labeled(row, genes):
-    if row['gene_name'] in genes:
+    if row['gene'] in genes:
         return '1'
     else:
         return '0'
@@ -68,8 +68,8 @@ def labeled(row, genes):
 
 def vol_plot(df, out, genes):
     conditions = [
-        (df['capLFC'] >= 2) & (df['padj'] <= 0.05),
-        (df['capLFC'] <= -2) & (df['padj'] <= 0.05),
+        (df['capLFC'] >= 1) & (df['padj'] <= 0.05),
+        (df['capLFC'] <= -1) & (df['padj'] <= 0.05),
         False,
     ]
     df['Marker'] = numpy.select(conditions, ['0', '1', '2'], default='3')
@@ -80,10 +80,10 @@ def vol_plot(df, out, genes):
         x='capLFC',
         y='capP',
         color='Marker',
-        color_discrete_sequence=['red', 'blue', 'grey'],
-        hover_data=['gene_name', 'log2FoldChange', 'capP'],
+        color_discrete_sequence=['blue', 'red', 'grey'],
+        hover_data=['gene', 'log2FoldChange', 'capP'],
         labels={
-            "gene_name": "gene",
+            "gene": "gene",
             "log2FoldChange": "log2(Fold Change)",
             "capP": "-log10(p-value)",
         },
@@ -95,10 +95,10 @@ def vol_plot(df, out, genes):
             y='capP',
             color='Marker',
             color_discrete_sequence=['grey', 'blue', 'red'],
-            text='gene_name',
-            hover_data=['gene_name', 'log2FoldChange', 'capP'],
+            text='gene',
+            hover_data=['gene', 'log2FoldChange', 'capP'],
             labels={
-                "gene_name": "gene",
+                "gene": "gene",
                 "log2FoldChange": "log2(Fold Change)",
                 "capP": "-log10(p-value)",
             },
@@ -108,7 +108,7 @@ def vol_plot(df, out, genes):
     xmax = max(abs(min(df['log2FoldChange'])), max(df['log2FoldChange']))
     ymax = max(df['capP'])
     fig2 = px.line(
-        x=[-xmax, xmax, None, (-1) * 2, (-1) * 2, None, 2, 2],
+        x=[-8, 8, None, (-1) * 1, (-1) * 1, None, 1, 1],
         y=[1.3, 1.3, None, 0, ymax+2, None, 0, ymax+2],
     )
     fig2.update_traces(line=dict(color='black', width=1, dash='dash'))
@@ -119,7 +119,7 @@ def vol_plot(df, out, genes):
         plot_bgcolor='white',
         font_color="black",
         yaxis_range=[-0.1, ymax+0.1],
-        xaxis_range=[-xmax-0.1, xmax + 0.1],
+        xaxis_range=[-8-0.1, 8 + 0.1],
         title='',
         showlegend=False,
 
@@ -141,10 +141,9 @@ def vol_plot(df, out, genes):
     fig.update_traces(
         textposition='top center',
     )
-    fig.show()
     fig.write_html(out + 'volcano_plot.html')
     fig.write_image(out + 'volcano_plot.svg', width=1200, height=800)
-    fig.write_image(out + 'volcano_plot.svg', width=1200, height=800)
+    fig.show()
 
 
 def old_volcano(df, out):
@@ -152,7 +151,7 @@ def old_volcano(df, out):
         effect_size='capLFC',
         p='capP',
         snp='gene',
-        gene='gene_name',
+        gene='gene',
         dataframe=df,
         point_size=5,
         effect_size_line_color='black',
