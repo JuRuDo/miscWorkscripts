@@ -84,7 +84,8 @@ setup(
                             "sce.correlationPlot = miscWorkScripts.sce.correlationPlot:main",
                             "dge.plotVolcano = miscWorkScripts.dge.plotVolcano:main",
                             "spatial.XeniumToZarr = miscWorkScripts.spatial.XeniumToZarr:main",
-                            "spatial.extractLevelXenium = miscWorkScripts.spatial.extractLevelXenium:main"
+                            "spatial.extractLevelXenium = miscWorkScripts.spatial.extractLevelXenium:main",
+                            "spatial.combineDGEcsvs = miscWorkScripts.spatial.combineDGEcsvs:main"
                             ],
     },
     license="GPL-3.0",

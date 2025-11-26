@@ -40,13 +40,13 @@ def readGeneList(path):
 
 def readSamples(path):
     groups = {}
-    tmp = {2: 'Primary', 3: 'Organoide', 4: 'Xeno'}
+    tmp = {2: 'Primary', 3: 'Organoide', 4: 'Xeno 1', 5: 'Xeno 2'}
     with open(path, 'r') as infile:
         for line in infile.readlines():
             if not line[0:5] == 'BB-ID':
                 cells = line.rstrip('\n').split('\t')
                 groups[cells[0]] = {}
-                for i in range(2, min(len(cells), 5)):
+                for i in range(2, min(len(cells), 6)):
                     groups[cells[0]][tmp[i]] = cells[i]
     infile.close()
     return groups
@@ -77,12 +77,12 @@ def readExp(path, genes):
 
 def checkGroups(samples, groups):
     final_groups = {}
+    print(groups)
     for group in groups:
-        if groups[group]['Primary'] in samples or groups[group]['Organoide'] in samples:
-            final_groups[group] = {}
-            for sample in groups[group]:
-                if groups[group][sample] in samples:
-                    final_groups[group][sample] = groups[group][sample]
+        final_groups[group] = {}
+        for sample in groups[group]:
+            if groups[group][sample] in samples:
+                final_groups[group][sample] = groups[group][sample]
     return final_groups
 
 
@@ -93,7 +93,7 @@ def prepareData(exp, final_groups):
     for t in tlist:
         traces[t] = []
     for group in final_groups:
-        for i in ['Primary', 'Organoide', 'Xeno']:
+        for i in ['Primary', 'Organoide', 'Xeno 1', 'Xeno 2']:
             if i in final_groups[group]:
                 x[0].append(group)
                 x[1].append(i)
