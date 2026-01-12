@@ -63,17 +63,17 @@ def defineGroups(exp, upper, protein, sur):
 
 def logRankTest(x, y, i, output):
     res = stats.logrank(x=x, y=y)
-    if res.pvalue < 0.05:
-        ax = plt.subplot()
-        ecdf_x = stats.ecdf(x)
-        ecdf_x.sf.plot(ax, label='upper')
-        ecdf_y = stats.ecdf(y)
-        ecdf_y.sf.plot(ax, label='lower')
-        ax.set_xlabel('Time to death (weeks)')
-        ax.set_ylabel('Empirical SF')
-        plt.legend()
-        plt.savefig(output + '/figures/' + str(i) + '.png')
-        plt.close()
+#    if res.pvalue < 0.05:
+    ax = plt.subplot()
+    ecdf_x = stats.ecdf(x)
+    ecdf_x.sf.plot(ax, label='upper')
+    ecdf_y = stats.ecdf(y)
+    ecdf_y.sf.plot(ax, label='lower')
+    ax.set_xlabel('Time to death (weeks)')
+    ax.set_ylabel('Empirical SF')
+    plt.legend()
+    plt.savefig(output + '/figures/' + str(i) + '.png')
+    plt.close()
     return res
 
 

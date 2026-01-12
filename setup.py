@@ -78,6 +78,8 @@ setup(
                             "misc.getRegionalDEgenes = miscWorkScripts.misc.getRegionalDEgenes:main",
                             "misc.filterFromFasta = miscWorkScripts.misc.filterFromFasta:main",
                             "misc.logRankTestByProtExp = miscWorkScripts.misc.logRankTestByProtExp:main",
+                            "misc.protArrayRemDup = miscWorkScripts.misc.protArrayRemDup:main",
+                            "misc.calcPearson = miscWorkScripts.misc.calcPearson:main",
                             "sce.makeHeatmap = miscWorkScripts.sce.make_heatmap:main",
                             "sce.plot_pca = miscWorkScripts.sce.plot_pca:main",
                             "sce.assignModules = miscWorkScripts.sce.assignModules:main",
