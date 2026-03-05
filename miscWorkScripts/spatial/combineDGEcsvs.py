@@ -15,19 +15,19 @@ def main():
     args = parser.parse_args()
 
     filelist = os.listdir(args.input)
-    numfiles = 0
+    files = []
     for i in filelist:
         if i.endswith('.csv'):
-            numfiles+=1
+            files.append(i)
     wb = openpyxl.Workbook()
     openpyxl.styles.DEFAULT_FONT.name = "Liberation Sans"
     f = 'LogFC'
-    for i in range(0, numfiles):
-        wb.create_sheet(str(i+1))
+    for i in files:
+        wb.create_sheet(i.strip('.csv'))
     wb.remove(wb.worksheets[0])
-    for i in range(0, numfiles):
+    for i in range(len(files)):
         ws = wb.worksheets[i]
-        with open(args.input + '/' + str(i+1) + '.csv', 'r') as infile:
+        with open(args.input + '/' + files[i], 'r') as infile:
             for line in infile.readlines():
                 cells = line.rstrip('\n').split(',')
                 cells.insert(1, cells.pop(5))

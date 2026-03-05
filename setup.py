@@ -19,7 +19,10 @@ setup(
         'scanpy',
         'matplotlib',
         'celltypist',
-        'tifffile'
+        'tifffile',
+        'plotly',
+        'pandas',
+        'openpyxl'
     ],
     entry_points={
         'console_scripts': ["uniprot.IDmapper = miscWorkScripts.uniprot.IDmapperUNIPROT:main",
@@ -80,6 +83,8 @@ setup(
                             "misc.logRankTestByProtExp = miscWorkScripts.misc.logRankTestByProtExp:main",
                             "misc.protArrayRemDup = miscWorkScripts.misc.protArrayRemDup:main",
                             "misc.calcPearson = miscWorkScripts.misc.calcPearson:main",
+                            "misc.readMutationsXLSX = miscWorkScripts.misc.readMutationsXLSX:main",
+                            "misc.plotGSVAtoMutation = miscWorkScripts.misc.plotGSVAtoMutation:main",
                             "sce.makeHeatmap = miscWorkScripts.sce.make_heatmap:main",
                             "sce.plot_pca = miscWorkScripts.sce.plot_pca:main",
                             "sce.assignModules = miscWorkScripts.sce.assignModules:main",
@@ -88,7 +93,10 @@ setup(
                             "dge.plotVolcano = miscWorkScripts.dge.plotVolcano:main",
                             "spatial.XeniumToZarr = miscWorkScripts.spatial.XeniumToZarr:main",
                             "spatial.extractLevelXenium = miscWorkScripts.spatial.extractLevelXenium:main",
-                            "spatial.combineDGEcsvs = miscWorkScripts.spatial.combineDGEcsvs:main"
+                            "spatial.combineDGEcsvs = miscWorkScripts.spatial.combineDGEcsvs:main",
+                            "scanpy.01_setup_adata = miscWorkScripts.scanpy_scripts.S01_setup_adata:main",
+                            "scanpy.02_process = miscWorkScripts.scanpy_scripts.S02_process:main",
+                            "misc.merge_rTablecsv = miscWorkScripts.misc.merge_rTablecsv:main"
                             ],
     },
     license="GPL-3.0",

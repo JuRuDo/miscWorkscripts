@@ -15,15 +15,17 @@ def main():
                           help="output directory")
     parser.add_argument("-g", "--genelist", type=str, default=None, required=False,
                           help="genes of interest")
-    parser.add_argument("-p", "--pvaluemin", type=float, default=0.000000000000000000005, required=False,
-                          help="sets the min p value, all genes with lower value will be set to this value for plotting")
+    parser.add_argument("-p", "--pvaluemin", type=int, default=20, required=False,
+                          help="sets the min p value, all genes with lower value will be set to this value for plotting, format is in -log10(pvalue)")
+    parser.add_argument("-l", "--logfoldmax", type=float, default=10.0, required=False,
+                          help="sets the max/min logFoldChange value")
     args = parser.parse_args()
 
     df = pd.read_csv(args.input)
     df = df[df['padj'].notna()]
     df = df[df['gene'].notna()]
 
-    df['capLFC'] = df.apply(set_max_log, axis=1)
+    df['capLFC'] = df.apply(set_max_log, args=[args.logfoldmax], axis=1)
     df['capP'] = df.apply(set_min_p, args=[args.pvaluemin], axis=1)
 
     if args.genelist:
@@ -43,24 +45,24 @@ def get_gois(path):
     return genes
 
 
-def set_max_log(row):
-   if row['log2FoldChange'] > 10.0:
-      return 10.0
-   elif row['log2FoldChange'] < -10.0:
-       return -10.0
+def set_max_log(row, logfoldmax):
+   if row['log2FoldChange'] > logfoldmax:
+      return logfoldmax
+   elif row['log2FoldChange'] < -logfoldmax:
+       return -logfoldmax
    else:
        return row['log2FoldChange']
 
 
 def set_min_p(row, minpvalue):
-   if row['padj'] < minpvalue:
-      return numpy.log10(minpvalue) * (-1)
+   if row['padj'] < 10**-minpvalue:
+      return minpvalue
    else:
        return numpy.log10(row['padj']) * (-1)
 
 
 def labeled(row, genes):
-    if row['gene'] in genes:
+    if row['gene'] in genes and (row['capLFC'] > 0.5 or row['capLFC'] < -0.5):
         return '1'
     else:
         return '0'
@@ -68,34 +70,35 @@ def labeled(row, genes):
 
 def vol_plot(df, out, genes):
     conditions = [
-        (df['capLFC'] >= 1) & (df['padj'] <= 0.05),
-        (df['capLFC'] <= -1) & (df['padj'] <= 0.05),
+        (df['capLFC'] >= 0.5) & (df['padj'] <= 0.05),
+        (df['capLFC'] <= -0.5) & (df['padj'] <= 0.05),
         False,
     ]
     df['Marker'] = numpy.select(conditions, ['0', '1', '2'], default='3')
     df = df.sort_values('Marker')
 
-    fig = px.scatter(
-        df[df['labeled']=='0'],
-        x='capLFC',
-        y='capP',
-        color='Marker',
-        color_discrete_sequence=['blue', 'red', 'grey'],
-        hover_data=['gene', 'log2FoldChange', 'capP'],
-        labels={
-            "gene": "gene",
-            "log2FoldChange": "log2(Fold Change)",
-            "capP": "-log10(p-value)",
-        },
-    )
     if genes:
-        fig3 = px.scatter(
+        fig = px.scatter(
             df[df['labeled']=='1'],
             x='capLFC',
             y='capP',
             color='Marker',
-            color_discrete_sequence=['grey', 'blue', 'red'],
+            color_discrete_sequence=['green', 'green', 'green'],
+            hover_data=['gene', 'log2FoldChange', 'capP'],
             text='gene',
+            labels={
+                "gene": "gene",
+                "log2FoldChange": "log2(Fold Change)",
+                "capP": "-log10(p-value)",
+            },
+        )
+
+        fig3 = px.scatter(
+            df[df['labeled']=='0'],
+            x='capLFC',
+            y='capP',
+            color='Marker',
+            color_discrete_sequence=['red', 'blue', 'grey'],
             hover_data=['gene', 'log2FoldChange', 'capP'],
             labels={
                 "gene": "gene",
@@ -105,21 +108,37 @@ def vol_plot(df, out, genes):
         )
 
         fig.add_trace(fig3.data[0])
-    xmax = max(abs(min(df['log2FoldChange'])), max(df['log2FoldChange']))
+        fig.add_trace(fig3.data[1])
+        fig.add_trace(fig3.data[2])
+    else:
+        fig = px.scatter(
+            df[df['labeled']=='1'],
+            x='capLFC',
+            y='capP',
+            color='Marker',
+            color_discrete_sequence=['blue', 'red', 'grey'],
+            hover_data=['gene', 'log2FoldChange', 'capP'],
+            labels={
+                "gene": "gene",
+                "log2FoldChange": "log2(Fold Change)",
+                "capP": "-log10(p-value)",
+            },
+        )
+    xmax = max(abs(min(df['capLFC'])), max(df['capLFC']))
     ymax = max(df['capP'])
     fig2 = px.line(
-        x=[-8, 8, None, (-1) * 1, (-1) * 1, None, 1, 1],
+        x=[-xmax, xmax, None, (-1) * 0.5, (-1) * 0.5, None, 0.5, 0.5],
         y=[1.3, 1.3, None, 0, ymax+2, None, 0, ymax+2],
     )
     fig2.update_traces(line=dict(color='black', width=1, dash='dash'))
-    fig.update_traces(marker=dict(size=6, opacity=0.95))
+    fig.update_traces(marker=dict(size=4, opacity=0.95))
     fig.add_trace(fig2.data[0])
     fig.update_layout(
         font=dict(size=16),
         plot_bgcolor='white',
         font_color="black",
-        yaxis_range=[-0.1, ymax+0.1],
-        xaxis_range=[-8-0.1, 8 + 0.1],
+        yaxis_range=[-0.1, ymax+2],
+        xaxis_range=[-xmax-0.1, xmax + 0.1],
         title='',
         showlegend=False,
 

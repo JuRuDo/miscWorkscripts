@@ -9,16 +9,18 @@ def main():
                         help="input csv file")
     parser.add_argument("-o", "--output", type=str, default=None, required=True,
                         help="output csv file")
+    parser.add_argument("-d", "--delimiter", type=str, default='\t', required=False,
+                        help="delimiter")
     args = parser.parse_args()
-    genes = readInfile(args.input)
+    genes = readInfile(args.input, args.delimiter)
     writeOutfile(args.output, genes)
 
 
-def readInfile(path):
+def readInfile(path, delimiter):
     with open(path) as infile:
         genes = {}
         for line in infile.readlines():
-            cells = line.rstrip('\n').split("\t")
+            cells = line.rstrip('\n').split(delimiter)
             if not cells[0] in genes:
                 genes[cells[0]] = cells
         infile.close()
