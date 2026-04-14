@@ -117,6 +117,7 @@ def filter(adata):
     adata.obs.mt_outlier.value_counts()
     sc.pp.filter_genes(adata, min_cells=3)
     adata = adata[~adata.obs.mt_outlier].copy()
+#    adata = adata[adata.obs["pct_counts_mt"] <= 15].copy() # filter mito by specific
     return adata
 
 

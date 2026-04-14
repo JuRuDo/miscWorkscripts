@@ -23,9 +23,10 @@ def main():
 def normalizeRows(data):
     newdata = []
     for i in data:
+        print(i)
         tmp = []
         for x in i:
-            tmp.append(x / max(i))
+            tmp.append((x-min(i)) / (max(i)- min(i))*2-1)
         newdata.append(tmp)
     return newdata
 
