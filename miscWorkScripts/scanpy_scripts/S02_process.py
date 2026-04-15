@@ -27,8 +27,7 @@ def main():
     sc.set_figure_params(figsize=(5, 5), format='svg')
     adata = pca(adata)
     adata = cluster(adata)
-    if not args.mouse:
-        adata = ct_run(adata)
+    adata = ct_run(adata, args.mouse)
     adata = run_dge(adata)
 
     sc.write(args.output, adata)
@@ -173,27 +172,38 @@ def cluster(adata):
     return adata
 
 
-def ct_run(adata):
+def ct_run(adata, mouse):
     adata_celltypist = ct_prepare(adata)
-    model_low, model_high = ct_models()
+    if mouse:
+        model_mouse_gut = ct_models(mouse)
+        predictions_high = ct_predict(adata_celltypist, model_mouse_gut)
+        adata.obs["celltypist_cell_label_mouse_gut"] = predictions_high.obs.loc[
+            adata.obs.index, "majority_voting"
+        ]
+        adata.obs["celltypist_conf_score_mouse_gut"] = predictions_high.obs.loc[
+            adata.obs.index, "conf_score"
+        ]
 
-    predictions_high = ct_predict(adata_celltypist, model_high)
-    adata.obs["celltypist_cell_label_coarse"] = predictions_high.obs.loc[
-        adata.obs.index, "majority_voting"
-    ]
-    adata.obs["celltypist_conf_score_coarse"] = predictions_high.obs.loc[
-        adata.obs.index, "conf_score"
-    ]
+    else:
+        model_low, model_high = ct_models(mouse)
 
-    predictions_low = ct_predict(adata_celltypist, model_low)
-    adata.obs["celltypist_cell_label_fine"] = predictions_low.obs.loc[
-        adata.obs.index, "majority_voting"
-    ]
-    adata.obs["celltypist_conf_score_fine"] = predictions_low.obs.loc[
-        adata.obs.index, "conf_score"
-    ]
+        predictions_high = ct_predict(adata_celltypist, model_high)
+        adata.obs["celltypist_cell_label_coarse"] = predictions_high.obs.loc[
+            adata.obs.index, "majority_voting"
+        ]
+        adata.obs["celltypist_conf_score_coarse"] = predictions_high.obs.loc[
+            adata.obs.index, "conf_score"
+        ]
 
-    ct_plot(adata)
+        predictions_low = ct_predict(adata_celltypist, model_low)
+        adata.obs["celltypist_cell_label_fine"] = predictions_low.obs.loc[
+            adata.obs.index, "majority_voting"
+        ]
+        adata.obs["celltypist_conf_score_fine"] = predictions_low.obs.loc[
+            adata.obs.index, "conf_score"
+        ]
+
+    ct_plot(adata, mouse)
     return adata
 
 
@@ -207,45 +217,64 @@ def ct_prepare(adata):
     return adata_celltypist
 
 
-def ct_models():
-    models.download_models(
-        force_update=True, model=["Immune_All_Low.pkl", "Immune_All_High.pkl"]
-    )
+def ct_models(mouse):
+    if mouse:
+        models.download_models(
+            force_update=True, model=["Adult_Mouse_Gut.pkl"]
+        )
 
-    model_low = models.Model.load(model="Immune_All_Low.pkl")
-    model_high = models.Model.load(model="Immune_All_High.pkl")
-    return model_low, model_high
+        model_mouse_gut = models.Model.load(model="Adult_Mouse_Gut.pkl")
+        return model_mouse_gut
+    else:
+        models.download_models(
+            force_update=True, model=["Immune_All_Low.pkl", "Immune_All_High.pkl"]
+        )
+
+        model_low = models.Model.load(model="Immune_All_Low.pkl")
+        model_high = models.Model.load(model="Immune_All_High.pkl")
+        return model_low, model_high
 
 
 def ct_predict(adata_celltypist, model):
     predictions = celltypist.annotate(
-        adata_celltypist, model=model, majority_voting=True
+        adata_celltypist, model=model, majority_voting=True, over_clustering='leiden'
     )
 
     predictions_adata = predictions.to_adata()
     return predictions_adata
 
 
-def ct_plot(adata):
-    sc.pl.umap(
-        adata,
-        color=["celltypist_cell_label_coarse", "celltypist_conf_score_coarse"],
-        frameon=False,
-        sort_order=False,
-        wspace=1,
-        save='_CT_coarse.svg',
-        show=False
-        )
+def ct_plot(adata, mouse):
+    if mouse:
+        sc.pl.umap(
+            adata,
+            color=["celltypist_cell_label_mouse_gut", "celltypist_conf_score_mouse_gut"],
+            frameon=False,
+            sort_order=False,
+            wspace=1,
+            save='_CT_mouse_gut.svg',
+            show=False
+            )
+    else:
+        sc.pl.umap(
+            adata,
+            color=["celltypist_cell_label_coarse", "celltypist_conf_score_coarse"],
+            frameon=False,
+            sort_order=False,
+            wspace=1,
+            save='_CT_coarse.svg',
+            show=False
+            )
 
-    sc.pl.umap(
-        adata,
-        color=["celltypist_cell_label_fine", "celltypist_conf_score_fine"],
-        frameon=False,
-        sort_order=False,
-        wspace=1,
-        save='_CT_fine.svg',
-        show=False
-    )
+        sc.pl.umap(
+            adata,
+            color=["celltypist_cell_label_fine", "celltypist_conf_score_fine"],
+            frameon=False,
+            sort_order=False,
+            wspace=1,
+            save='_CT_fine.svg',
+            show=False
+        )
 
 
     if __name__ == '__main__':
